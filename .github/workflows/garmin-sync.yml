@@ -1,0 +1,38 @@
+# Road to 1:35 — daily Garmin sync
+# Runs every morning at 05:30 UTC and on demand from the Actions tab.
+name: Garmin sync
+
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependency
+        run: pip install garminconnect
+
+      - name: Fetch activities from Garmin Connect
+        env:
+          GARMIN_EMAIL: ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
+        run: python sync/fetch_garmin.py
+
+      - name: Commit activities.json if changed
+        run: |
+          git config user.name "garmin-sync"
+          git config user.email "actions@users.noreply.github.com"
+          git add activities.json
+          git diff --cached --quiet || git commit -m "Garmin sync $(date -u +%F)"
+          git push
