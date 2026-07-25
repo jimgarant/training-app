@@ -2,7 +2,7 @@
   Road to 1:35 — service worker
   Copyright (c) 2026 Antonio. All rights reserved. Proprietary; see LICENSE.
 */
-const CACHE = 'road135-v1';
+const CACHE = 'road135-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,20 @@ self.addEventListener('activate', (e) => {
    Cache-first for static assets (icons, manifest). */
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  // activities.json must always be fresh: network first, cached copy only
+  // as an offline fallback, and never poisons the static cache.
+  if (new URL(e.request.url).pathname.endsWith('/activities.json')) {
+    e.respondWith(
+      fetch(e.request)
+        .then((r) => {
+          const copy = r.clone();
+          caches.open(CACHE).then((c) => c.put('./activities.json', copy));
+          return r;
+        })
+        .catch(() => caches.match('./activities.json'))
+    );
+    return;
+  }
   const isNav = e.request.mode === 'navigate' || e.request.destination === 'document';
   if (isNav) {
     e.respondWith(

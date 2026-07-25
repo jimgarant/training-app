@@ -2535,6 +2535,37 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
 }
 
+/* ============================================================
+   CLOUD SYNC — pull activities.json written daily by the
+   GitHub Action (sync/fetch_garmin.py). Merges new runs into
+   local storage; never deletes or overwrites anything local.
+   ============================================================ */
+async function syncFromCloud(){
+  let payload;
+  try{
+    const res=await fetch('./activities.json',{cache:'no-store'});
+    if(!res.ok) return;                       // file not there yet — fine
+    payload=await res.json();
+  }catch(e){ return; }                        // offline — fine
+  const list=(payload&&payload.activities)||[];
+  let added=0;
+  for(const sum of list){
+    if(!sum||!sum.date||!sum.dist) continue;
+    // exact dedupe is handled by addActivity via id (startISO_dist).
+    // fuzzy dedupe: skip if a manually imported file already covers the
+    // same run (same date, distance within 150 m) even if timestamps differ.
+    const near=S.acts.some(a=>a.date===sum.date && Math.abs((a.dist||0)-sum.dist)<0.15);
+    if(near) continue;
+    const r=addActivity(sum);
+    if(r.added) added++;
+  }
+  if(added>0){
+    save(); renderAll();
+    if(typeof toast==='function') toast(added+(added===1?' run':' runs')+' synced from Garmin','ok');
+  }
+}
+syncFromCloud();
+
 </script>
 </body>
 </html>
