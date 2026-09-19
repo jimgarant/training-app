@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-18T09:58:09Z",
+ "generated": "2026-09-19T09:40:23Z",
  "activities": [
   {
    "date": "2026-07-18",
@@ -167,6 +167,30 @@
    "maxHR": 182,
    "avgCad": 175,
    "gain": 36,
+   "src": "garmin-sync"
+  },
+  {
+   "date": "2026-09-18",
+   "startISO": "2026-09-18T15:30:09",
+   "dist": 1.5,
+   "time": 524,
+   "elapsed": 680,
+   "avgHR": 123,
+   "maxHR": 135,
+   "avgCad": 175,
+   "gain": null,
+   "src": "garmin-sync"
+  },
+  {
+   "date": "2026-09-18",
+   "startISO": "2026-09-18T16:16:05",
+   "dist": 3.0,
+   "time": 921,
+   "elapsed": 1259,
+   "avgHR": 137,
+   "maxHR": 161,
+   "avgCad": 177,
+   "gain": 15,
    "src": "garmin-sync"
   }
  ]
